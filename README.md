@@ -1,53 +1,207 @@
 # TheSimpsonsQuoteAPI
---------------
-See for full usage: https://thesimpsonsquoteapi.glitch.me/
 
-![](https://cdn.glitch.com/3c3ffadc-3406-4440-bb95-d40ec8fcde72%2Fsimpsons.PNG?1497481539770)
+A simple API that serves random quotes from The Simpsons with character images.
 
-# Quote API -- Usage
--------------
-### In your JSON request use the following URL:
+![](./public/images/simpsons.PNG)
 
+## Overview
 
-#### For basic usage with one quote on return:
-```
-https://thesimpsonsquoteapi.glitch.me/quotes
+This is a Node.js Express API that serves Simpsons quotes from a local JSON file with character images served locally. No external dependencies required.
+
+## Features
+
+- Get random quotes
+- Filter by character name
+- Get multiple quotes at once
+- Convert character images to ASCII art
+- List all available characters
+- CORS enabled
+- Health check endpoint
+- Docker support
+
+## Running Locally
+
+### Prerequisites
+- Node.js 14.x or higher
+
+### Installation
+
+```bash
+npm install
+npm start
 ```
 
-#### For multiple quotes, you can provide a `count` query with the number of quotes you'd like:
+The API will start on `http://localhost:3000`
+
+## API Endpoints
+
+### Get a Random Quote
 ```
-https://thesimpsonsquoteapi.glitch.me/quotes?count=num
+GET /quotes
 ```
 
-#### For filtered character quotes, you can provide a `character` query and part or all of their name:
-```
-https://thesimpsonsquoteapi.glitch.me/quotes?character=ho //Would return a quote from Homer or Milhouse
-https://thesimpsonsquoteapi.glitch.me/quotes?character=homer simpson //Would return a quote only from Homer
-```
-
-#### For filtered character and multiple quotes, you can provide a `character` and `num` query:
-```
-https://thesimpsonsquoteapi.glitch.me/quotes?count=15&character=ho //Would return up to 15 quotes from Homer and Milhouse
-```
-
-#### The returned JSON data will contain four properties including the quote, the character who said the quote, an image of the character, and the direction in which the character is facing.
-#### Example returned JSON: 
+Returns a single random quote:
 ```json
-[
-  {
-   "quote": "Shoplifting is a victimless crime, like punching someone in the dark.",
-   "character": "Nelson Muntz",
-   "image" : "https://cdn.glitch.com/3c3ffadc-3406-4440-bb95-d40ec8fcde72%2FNelsonMuntz.png?1497567511185",
-   "characterDirection" : "Left"
-  }
-]
+{
+  "quote": "They taste like...burning.",
+  "character": "Ralph Wiggum",
+  "image": "/images/RalphWiggum.png",
+  "characterDirection": "Left"
+}
 ```
--------------
-# API Wrappers
 
-# NodeJs
-https://github.com/HPaulson/Simpsons-Quotes
-### Usage
+### Get Multiple Quotes
+```
+GET /quotes?count=5
+```
+
+Returns an array of 5 random quotes.
+
+### Filter by Character
+```
+GET /quotes?character=homer
+```
+
+Returns a quote from a character matching "homer" (case-insensitive, partial match supported):
+```json
+{
+  "quote": "I believe the children are the future... Unless we stop them now!",
+  "character": "Homer Simpson",
+  "image": "/images/HomerSimpson.png",
+  "characterDirection": "Right"
+}
+```
+
+### Combine Filters
+```
+GET /quotes?count=10&character=bart
+```
+
+Get 10 quotes from Bart Simpson.
+
+### ASCII Art Conversion
+```
+GET /quotes?ascii=true
+```
+
+Returns a quote with the character image converted to ASCII art:
+```json
+{
+  "quote": "They taste like...burning.",
+  "character": "Ralph Wiggum",
+  "asciiImage": "@@@@@@@@@@@@@@@\n@@@@@@@@@@@@@@@\n...ASCII ART...",
+  "characterDirection": "Left"
+}
+```
+
+#### ASCII Options
+- `asciiWidth`: Set ASCII art width (default: 80)
+- `asciiHeight`: Set ASCII art height (optional, maintains aspect ratio)
+- `asciiComplex`: Use complex character set for better detail (default: false)
+
+Examples:
+```
+GET /quotes?ascii=true&asciiWidth=120
+GET /quotes?ascii=true&asciiComplex=true
+GET /quotes?character=homer&ascii=true&asciiWidth=100&asciiHeight=50
+```
+
+### Get All Available Characters
+```
+GET /characters
+```
+
+Returns an array of all character names available:
+```json
+["Apu Nahasapeemapetilon", "Bart Simpson", "Chief Wiggum", ...]
+```
+
+### Health Check
+```
+GET /health
+```
+
+Returns API status and quote count:
+```json
+{
+  "status": "healthy",
+  "quotes": 45
+}
+```
+
+## Docker
+
+### Build the Image
+
+```bash
+cd ..
+docker build -t simpsons-quote-api .
+```
+
+### Run the Container
+
+```bash
+docker run -p 3000:3000 simpsons-quote-api
+```
+
+Then access the API at `http://localhost:3000/quotes`
+
+### Docker Compose (optional)
+
+Create a `docker-compose.yml`:
+```yaml
+version: '3.8'
+services:
+  api:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+```
+
+Run with:
+```bash
+docker-compose up
+```
+
+## Project Structure
+
+```
+TheSimpsonsQuoteAPI/
+├── app.js                 # Express server
+├── quotes.json           # Quote database
+├── package.json          # Dependencies
+├── public/
+│   └── images/           # Character images (served statically)
+└── README.md
+```
+
+## Response Format
+
+All quote responses include:
+- **quote**: The quote text
+- **character**: Name of the character who said it
+- **image**: Path to the character image (relative to `/public/images`)
+- **characterDirection**: Direction the character faces ("Left" or "Right")
+
+## Development
+
+To add more quotes, edit `quotes.json` and restart the server.
+
+Image files should be placed in `public/images/` and referenced in quotes.json like:
+```json
+{
+  "quote": "...",
+  "character": "Character Name",
+  "image": "/images/CharacterName.png",
+  "characterDirection": "Left"
+}
+```
+
+## License
+
+ISC
 
 `npm install @hpaulson/simpsons-quotes  --registry=https://npm.pkg.github.com/hpaulson`
 
