@@ -20,7 +20,12 @@ try {
 } catch (error) {
   console.error('Error loading quotes:', error.message);
 }
-
+function normalizeText(text) {
+  return String(text || '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, ' ');
+}
 // ASCII character sets for different complexity levels
 const ASCII_CHARS_SIMPLE = ' .:-=+*#%@';
 const ASCII_CHARS_COMPLEX = ' .\'`^",:;Il!i><~+_-?][}{1)(|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$';
@@ -102,8 +107,8 @@ app.get('/quotes', async (req, res) => {
     // Filter quotes by character if provided
     let filteredQuotes = quotes;
     if (character) {
-      const characterRegex = new RegExp(character, 'i');
-      filteredQuotes = quotes.filter(q => characterRegex.test(q.character));
+      const normalizedCharacter = normalizeText(character);
+      filteredQuotes = quotes.filter(q => normalizeText(q.character).includes(normalizedCharacter));
     }
 
     if (filteredQuotes.length === 0) {
