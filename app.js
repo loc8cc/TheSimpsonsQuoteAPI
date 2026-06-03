@@ -117,7 +117,7 @@ app.get('/quotes', async (req, res) => {
 
     // Get random quotes
     const result = [];
-    for (let i = 0; i < Math.min(numOfQuotes, filteredQuotes.length); i++) {
+    for (let i = 0; i < numOfQuotes; i++) {
       const randomIndex = Math.floor(Math.random() * filteredQuotes.length);
       const quote = { ...filteredQuotes[randomIndex] };
 
@@ -137,8 +137,6 @@ app.get('/quotes', async (req, res) => {
       }
 
       result.push(quote);
-      // Remove the quote from the pool to avoid duplicates
-      filteredQuotes.splice(randomIndex, 1);
     }
 
     // Set CORS headers
